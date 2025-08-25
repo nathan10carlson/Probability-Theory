@@ -13,7 +13,7 @@ def birthday_paradox(num_people):
     return x, collision_probs
 
 ######################################
-x_vals, y_vals = birthday_paradox(50)#
+x_vals, y_vals = birthday_paradox(50)# number of people here!
 ######################################
 
 plt.plot(x_vals, y_vals * 100, linestyle='-', color='navy')
