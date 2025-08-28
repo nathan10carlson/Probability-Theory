@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # and the option to plot individual runs.
 random_walk_length = 100
 number_of_trials = 100000
-std_dev = 20
+std_dev = 1
 num_bins = 1000
 plot_option = False
 compare_gaussian = True
@@ -50,7 +50,8 @@ if compare_gaussian is True:
 
 plt.xlabel('Final Position')
 plt.ylabel('Probability Density')
-plt.title(f'Random Walk with {random_walk_length} Steps')
+number_of_trials = 100000
+plt.title(f"Random Walk with {random_walk_length} Steps ($10^{{{int(np.log10(number_of_trials))}}}$ trials, $\sigma =${std_dev})")
 plt.legend()
 plt.savefig('random_walk.png')
 plt.show()
