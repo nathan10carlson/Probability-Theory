@@ -78,7 +78,39 @@ def plot_Poisson(x, u, x_coarse, u_coarse, z):
     plt.grid(True)
     plt.show()
 
-# ==================== Likelihood ====================
+def plot_theta_2d(theta_post, idx1, idx2, bins=30, hexbin=False):
+    """
+    Plot a 2D histogram / joint posterior distribution of two theta parameters.
+
+    Parameters:
+    -----------
+    theta_post : ndarray
+        Posterior MCMC samples of shape (num_samples, n_theta)
+    idx1, idx2 : int
+        Indices of the two theta parameters to plot (0-based)
+    bins : int
+        Number of bins for histogram
+    hexbin : bool
+        If True, use hexbin plot; otherwise use plt.hist2d
+    """
+    x = theta_post[:, idx1]
+    y = theta_post[:, idx2]
+
+    plt.figure(figsize=(7, 5))
+
+    if hexbin:
+        plt.hexbin(x, y, gridsize=bins, cmap='Blues', mincnt=1)
+        plt.colorbar(label='Counts')
+    else:
+        plt.hist2d(x, y, bins=bins, cmap='Blues', density=True)
+        plt.colorbar(label='Density')
+
+    plt.xlabel(f"$\\theta_{{{idx1 + 1}}}$")
+    plt.ylabel(f"$\\theta_{{{idx2 + 1}}}$")
+    plt.title(f"2D distribution of $\\theta_{{{idx1 + 1}}}$ vs $\\theta_{{{idx2 + 1}}}$")
+    plt.grid(True)
+    plt.show()
+# Likelihood calculation
 
 def log_likelihood(u_coarse):
     sigma = 0.005  # fixed noise std
@@ -86,7 +118,8 @@ def log_likelihood(u_coarse):
     # taking log
     return (-1/ (2 *sigma**2)) * np.sum((u_error)**2)
 
-# ==================== Main MCMC ====================
+#####################################################
+# Main Code
 start_time = time.time()
 
 
@@ -100,10 +133,10 @@ theta = np.random.uniform(low=0.1, high=10.0, size=n_theta)
 
 # MCMC settings
 num_steps = int(1e6)
-#num_steps = 1000000
-proposal_scale = .05 ###### DETERMINE VARIANCE HERE
-plot_theta = False
-plot_means = False
+#num_steps = 100
+proposal_scale = .05 ###### DETERMINE VARIANCE of added noise HERE
+plot_theta = True
+plot_means = True
 
 # Storage
 theta_chain = np.zeros((num_steps, n_theta))
@@ -134,11 +167,11 @@ for i in range(num_steps):
 
 # Results
 
-# Acceptance rate
+# tracking acceptance rate
 accept_rate = accept_count / num_steps
 print(f"Acceptance rate: {accept_rate:.2%}")
 
-# Burn-in removal
+#removing the burnin time
 burn_in = int(0.25 * num_steps)
 theta_post = theta_chain[burn_in:, :]
 
@@ -196,3 +229,9 @@ plot_Poisson(x_final, u_final, x_coarse_final, u_coarse_final, z)
 #best_theta = np.ar ray([1.4,1.25,.15,.05,.75,5,1.8,.65])
 #_, _, _, u_coarse = solve_Poisson(best_theta)
 #plot_Poisson(x_final, u_final, x_coarse_final, u_coarse, z)
+
+# Plot theta_1 vs theta_2
+plot_theta_2d(theta_post, 0, 1)
+
+# Plot theta_5 vs theta_8 with hexbin style
+plot_theta_2d(theta_post, 4, 7, bins=40, hexbin=True)
