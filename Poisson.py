@@ -135,8 +135,10 @@ theta = np.random.uniform(low=0.1, high=10.0, size=n_theta)
 num_steps = int(1e6)
 #num_steps = 100
 proposal_scale = .05 ###### DETERMINE VARIANCE of added noise HERE
-plot_theta = True
-plot_means = True
+prop_scale = .75 ### Determine how often things are accepted
+plot_theta = False
+plot_means = False
+plot_joints = False
 
 # Storage
 theta_chain = np.zeros((num_steps, n_theta))
@@ -150,14 +152,14 @@ prev_log_like = log_likelihood(u_coarse)
 # Running loop
 for i in range(num_steps):
     update_theta = np.random.normal(loc=0, scale=proposal_scale, size=n_theta)
-    proposed_theta = np.abs(theta + update_theta)  # enforce positivity
+    proposed_theta = np.abs(theta + update_theta)  # make sure its postive
 
     _, _, _, u_coarse_prop = solve_Poisson(proposed_theta)
     proposed_log_like = log_likelihood(u_coarse_prop)
 
     log_pi_j = proposed_log_like - prev_log_like
 
-    if np.log(np.random.rand()) < log_pi_j:
+    if np.log(prop_scale *np.random.rand()) < log_pi_j:
         theta = proposed_theta
         prev_log_like = proposed_log_like
         accept_count += 1
@@ -226,12 +228,20 @@ print(f"Runtime: {end_time - start_time}")
 x_final, u_final, x_coarse_final, u_coarse_final = solve_Poisson(posterior_mean)
 plot_Poisson(x_final, u_final, x_coarse_final, u_coarse_final, z)
 
-#best_theta = np.ar ray([1.4,1.25,.15,.05,.75,5,1.8,.65])
-#_, _, _, u_coarse = solve_Poisson(best_theta)
+_, _, _, u_coarse = solve_Poisson(posterior_mean)
 #plot_Poisson(x_final, u_final, x_coarse_final, u_coarse, z)
 
-# Plot theta_1 vs theta_2
-plot_theta_2d(theta_post, 0, 1)
+# Plot all unique theta pairs
+if plot_joints == True:
+    pairs = [
+        (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7),
+        (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7),
+        (2, 3), (2, 4), (2, 5), (2, 6), (2, 7),
+        (3, 4), (3, 5), (3, 6), (3, 7),
+        (4, 5), (4, 6), (4, 7),
+        (5, 6), (5, 7),
+        (6, 7)
+    ]
 
-# Plot theta_5 vs theta_8 with hexbin style
-plot_theta_2d(theta_post, 4, 7, bins=40, hexbin=True)
+    for idx1, idx2 in pairs:
+        plot_theta_2d(theta_post, idx1, idx2, bins=30, hexbin=False)
