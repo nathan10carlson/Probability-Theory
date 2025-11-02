@@ -99,7 +99,7 @@ def posterior(thta: np.ndarray) -> float:
 # %% perform MCMC
 
 # %define number of steps to run
-steps = int(1e5)
+steps = int(1e6)
 
 # %define proposal step size
 del_step = 0.1
