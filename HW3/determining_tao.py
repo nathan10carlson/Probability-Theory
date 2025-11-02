@@ -39,31 +39,32 @@ def determine_batch_means (num_batches, theta_samples, num_samples):
 
 # how many batches to make
 max_batch = 5000
-tao = np.zeros(max_batch - 2)
-for num_batches in range(2,max_batch):
+tao = np.zeros(max_batch - 30)
+for num_batches in range(30,max_batch):
     batch_means, batch_size = determine_batch_means (num_batches, theta_samples, num_samples)
     batch_mean_var = np.var(batch_means, ddof=1)
-    tao[num_batches-2] = batch_size * batch_mean_var # i will divide everything by S^2 at the end
+    tao[num_batches-30] = batch_size * batch_mean_var # i will divide everything by S^2 at the end
 
 tao = tao / theta_variance
 
-# x-axis: number of batches
-x_batches = np.arange(2, max_batch)
+# creating x axis
+x_batches = np.arange(30, max_batch)
 
 plt.figure(figsize=(10, 5))
 plt.plot(x_batches, tao, marker='.', linestyle='-', color='purple', label=r'$\tau$')
 plt.xlabel('Number of batches', fontsize=12)
 plt.ylabel(r'Normalized batch-mean variance ($\tau$)', fontsize=12)
-plt.title(r'$\tau$ for MCMC Variance', fontsize=14)
+plt.title(rf'$\tau$ for MCMC Variance ($\theta_{{{theta_to_test}}}$)', fontsize=14)
 plt.grid(True)
 plt.legend(fontsize=12)
 plt.tight_layout()
 plt.show()
 
+plt.figure(figsize=(10, 5))
 plt.plot(x_batches[1000:], tao[1000:], marker='.', linestyle='-', color='purple', label=r'$\tau$')
 plt.xlabel('Number of batches', fontsize=12)
 plt.ylabel(r'Normalized batch-mean variance ($\tau$)', fontsize=12)
-plt.title(r'$\tau$ for MCMC Variance ($1,000$ batches <)', fontsize=14)
+plt.title(rf'$\tau$ for MCMC Variance (num batches > $1,000$) ($\theta_{{{theta_to_test}}}$)', fontsize=14)
 plt.grid(True)
 plt.legend(fontsize=12)
 plt.tight_layout()
