@@ -1,3 +1,5 @@
+from traceback import print_tb
+
 import numpy as np
 import matplotlib.pyplot as plt
 import time as time
@@ -129,16 +131,16 @@ x_full, z_full, x_obs, z = load_data()
 # Initial theta
 n_theta = 8
 theta = np.random.uniform(low=0.1, high=10.0, size=n_theta)
-#theta = np.array([1.4,1.25,.15,.05,.75,5,1.8,.65])
+theta = np.array([1.0284,1.027,0.107,0.132,5.82,6.3,1.2,0.65])
 
 # MCMC settings
 num_steps = int(1e6)
 #num_steps = 100
-proposal_scale = .05 ###### DETERMINE VARIANCE of added noise HERE
+proposal_scale = .02 ###### DETERMINE VARIANCE of added noise HERE
 prop_scale = .75 ### Determine how often things are accepted
-plot_theta = False
-plot_means = False
-plot_joints = False
+plot_theta = True
+plot_means = True
+plot_joints = True
 
 # Storage
 theta_chain = np.zeros((num_steps, n_theta))
@@ -180,6 +182,7 @@ theta_post = theta_chain[burn_in:, :]
 # Posterior means
 posterior_mean = np.mean(theta_post, axis=0)
 print("Posterior mean of θ:", posterior_mean)
+posterior_median = np.median(theta_post, axis=0)
 
 # Plots for theta vals
 if plot_theta == True:
@@ -228,8 +231,8 @@ print(f"Runtime: {end_time - start_time}")
 x_final, u_final, x_coarse_final, u_coarse_final = solve_Poisson(posterior_mean)
 plot_Poisson(x_final, u_final, x_coarse_final, u_coarse_final, z)
 
-_, _, _, u_coarse = solve_Poisson(posterior_mean)
-#plot_Poisson(x_final, u_final, x_coarse_final, u_coarse, z)
+x_final, u_final, x_coarse_final, u_coarse_final = solve_Poisson(posterior_median)
+plot_Poisson(x_final, u_final, x_coarse_final, u_coarse, z)
 
 # Plot all unique theta pairs
 if plot_joints == True:
@@ -245,3 +248,9 @@ if plot_joints == True:
 
     for idx1, idx2 in pairs:
         plot_theta_2d(theta_post, idx1, idx2, bins=30, hexbin=False)
+
+    x_full, z_full, x_obs, z = load_data()
+    print(x_full)
+    print(z_full)
+    print(x_obs)
+    print(z)
